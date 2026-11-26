@@ -291,11 +291,11 @@ function miss(msg){
   succ=0;st='ready';cd=1;th=0;return
  }
  lives--;
- if(lives<=0){st='fail';saveBest()}else{st='ready';cd=1;th=0}
+ if(lives<=0){st='fail';saveBest();loadBoard(1)}else{st='ready';cd=1;th=0}
 }
 function saveBest(){if(score>(save.best||0)){save.best=score;newBest=true;store()}}
 function clearRun(){
- st='clear';fanfare();cheer=2;burst(W/2,-10,90,'conf');saveBest();newShoe=-1;
+ st='clear';fanfare();cheer=2;burst(W/2,-10,90,'conf');saveBest();loadBoard(1);newShoe=-1;
  if(lvl===owned()-1&&owned()<SHOES.length){save.cleared=owned();newShoe=owned()-1;store()}
  champNew=false;
  if(lvl===SHOES.length-1&&!save.champ){save.champ=true;champNew=true;SPR.clear();store()}
@@ -712,14 +712,16 @@ function resetScreen(){
 }
 
 /* ---------- 전체 순위표 ---------- */
-let gb={st:'idle',top:[],total:0,rank:0,me:null};
+let gb=Object.assign({st:'idle',top:[],total:0,rank:0,me:null},save.gb||{}),gbT=0;
+function keepGb(d){gb=Object.assign({st:'ok'},d);gbT=Date.now();save.gb={top:d.top,total:d.total,rank:d.rank,me:d.me};store()}
 function apiGet(q){
  return fetch(API+'?'+new URLSearchParams(q).toString(),{redirect:'follow'}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{if(!d||!Array.isArray(d.top))throw 0;return d});
 }
-function loadBoard(){
- if(!API)return;
+function loadBoard(force){
+ if(!API||gb.st==='load')return;
+ if(!force&&Date.now()-gbT<20000)return;
  gb.st='load';
- apiGet({a:'top',id:save.pid}).then(d=>{gb=Object.assign({st:'ok'},d)}).catch(()=>{gb.st='err'});
+ apiGet({a:'top',id:save.pid}).then(keepGb).catch(()=>{gb.st='err'});
 }
 function boardIcon(){
  const x=W-54,y=14;
@@ -790,7 +792,8 @@ function boardScreen(){
  if(on){
   const y=py+96+rows*34+8;
   ctx.fillStyle='#13315c';rr(28,y-18,W-56,38,10);
-  const s=gb.st==='load'&&!gb.rank?'내 순위 불러오는 중...':gb.st==='err'?'연결 실패 · 다시 열어주세요':gb.rank&&gb.me?'내 순위 '+gb.rank+'위 / '+gb.total+'명 · '+fmt(gb.me.s)+'점':'아직 내 기록이 없어요';
+  if(gb.st==='load'&&list.length)txt('최신 순위 확인 중...',W/2,py+80,11,'#2c9a62');
+  const s=gb.rank&&gb.me?'내 순위 '+gb.rank+'위 / '+gb.total+'명 · '+fmt(gb.me.s)+'점':gb.st==='load'?'내 순위 불러오는 중...':gb.st==='err'?'연결 실패 · 다시 열어주세요':gb.rank&&gb.me?'내 순위 '+gb.rank+'위 / '+gb.total+'명 · '+fmt(gb.me.s)+'점':'아직 내 기록이 없어요';
   txt(s,W/2,y+1,16,'#ffe14d');
  }
  btn(W/2-60,py+ph-56,120,44,'닫기',toTitle,true,null,'#3a6fb5');
@@ -859,7 +862,7 @@ $('bSave').addEventListener('click',()=>{
  }
  $('bSave').disabled=true;$('bSave').textContent='저장 중...';$('m2').textContent='';
  apiGet({a:'save',id:save.pid,n,s:score,sh:lvl,st:rec.st}).then(d=>{
-  gb=Object.assign({st:'ok'},d);saveLocal(rec);runSaved=true;
+  keepGb(d);saveLocal(rec);runSaved=true;
   $('bSave').textContent='저장 완료';
   let msg=d.rank?'전체 '+d.rank+'위! (총 '+d.total+'명)':'저장했어요!';
   if(d.me&&d.me.s>score)msg+=' · 내 최고 '+fmt(d.me.s)+'점';
@@ -900,6 +903,7 @@ window.addEventListener('blur',pauseGame);
 
 
 resize();
+loadBoard(1);
 if(document.fonts&&document.fonts.load)document.fonts.load('20px Jua').then(()=>{buildBg();paintLayers()}).catch(()=>{});
 let last=performance.now();
 let ema=.016,slowT=0;
