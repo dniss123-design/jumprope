@@ -46,6 +46,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.proto
 var m=document.getElementById('msg');if(m)m.style.display='none';
 {
 /* ===== 전체 순위표 주소 (구글 앱스스크립트 웹 앱 URL) ===== */
+const VER='2026-11-27b';
 const API='https://script.google.com/macros/s/AKfycbybco1Ml3YYJgA6rBGapPov9RtL4Cqsx1Lroovrv_SMy7gqdsVhpdBuZGOvIdoDBoVCJA/exec';
 /* ========================================================== */
 const cv=document.getElementById('c');let ctx=cv.getContext('2d');
@@ -296,7 +297,7 @@ function miss(msg){
 function saveBest(){if(score>(save.best||0)){save.best=score;newBest=true;store()}}
 function clearRun(){
  st='clear';fanfare();cheer=2;burst(W/2,-10,90,'conf');saveBest();loadBoard(1);newShoe=-1;
- if(lvl===owned()-1&&owned()<SHOES.length){save.cleared=owned();newShoe=owned()-1;store()}
+ if(lvl===owned()-1&&owned()<SHOES.length){save.cleared=owned();newShoe=owned()-1;save.equip=newShoe;store()}
  champNew=false;
  if(lvl===SHOES.length-1&&!save.champ){save.champ=true;champNew=true;SPR.clear();store()}
 }
@@ -593,7 +594,7 @@ function gaugePos(){
  return 1-Math.abs(1-2*u/C);
 }
 function gauge(){
- const x=14,w=26,top=100,bot=FY+18,bh=bot-top;
+ const x=14,w=26,top=FY-Math.round((FY-106)*.78),bot=H-58,bh=bot-top;
  ctx.fillStyle='rgba(8,24,50,.45)';rr(x-8,top-8,w+16,bh+16,12);
  const g=ctx.createLinearGradient(x,0,x+w,0);g.addColorStop(0,'#ffe56a');g.addColorStop(.5,'#ffd21f');g.addColorStop(1,'#e8ae00');
  ctx.fillStyle=g;rr(x,top,w,bh,8);
@@ -696,7 +697,7 @@ function hud(){
   txt(fmt(score)+'점',W-58,32,22,'#fff',null,'right');
   heart(W-34,18,22,lives>=2);
   txt('점수 ×'+(lvl+1)+'  '+stars(lvl+1),W-22,60,12,'#ffe14d',null,'right');
-  for(let i=0;i<4;i++){ctx.fillStyle=i<stage?'#7dffb0':i===stage?'#ffe14d':'rgba(255,255,255,.25)';ctx.beginPath();ctx.arc(208+i*12,56,4,0,7);ctx.fill()}
+  for(let i=0;i<4;i++){ctx.fillStyle=i<stage?'#7dffb0':i===stage?'#ffe14d':'rgba(255,255,255,.25)';ctx.beginPath();ctx.arc(108+i*13,30,4.5,0,7);ctx.fill()}
  }
  pauseBtn();
  if(combo>=2)txt('퍼펙트 연속 '+combo,W/2+14,110,18,'#ffe14d','#13315c');
@@ -911,6 +912,20 @@ window.addEventListener('blur',pauseGame);
 
 resize();
 loadBoard(1);
+let newVer=null;
+try{
+ const base=location.href.split('#')[0].split('?')[0];
+ fetch(base+'?nc='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(tx=>{
+  const mv=tx.match(/const VER='([^']+)'/);
+  if(mv&&mv[1]!==VER){let tried='';try{tried=sessionStorage.getItem('jr_ver')||''}catch(e){}if(tried!==mv[1])newVer=mv[1]}
+ }).catch(()=>{});
+}catch(e){}
+function checkVer(){
+ if(!newVer||st!=='title'||!$('sheet').hidden)return;
+ try{sessionStorage.setItem('jr_ver',newVer)}catch(e){}
+ const v=newVer;newVer=null;
+ location.replace(location.href.split('#')[0].split('?')[0]+'?v='+encodeURIComponent(v));
+}
 if(document.fonts&&document.fonts.load)document.fonts.load('20px Jua').then(()=>{buildBg();paintLayers()}).catch(()=>{});
 let last=performance.now();
 let ema=.016,slowT=0;
@@ -918,7 +933,7 @@ function frame(now){
  let dt=Math.min(.1,(now-last)/1000);last=now;
  if(st==='play'){ema=ema*.9+dt*.1;if(ema>.024&&QL<2){slowT+=dt;if(slowT>1.5){QL++;slowT=0;ema=.016;resize()}}else slowT=0}
  while(dt>0){const s=Math.min(.02,dt);update(s);dt-=s}
- draw();requestAnimationFrame(frame);
+ draw();checkVer();requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 }
