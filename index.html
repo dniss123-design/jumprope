@@ -67,7 +67,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.proto
 var m=document.getElementById('msg');if(m)m.style.display='none';
 {
 /* ===== 전체 순위표 주소 (구글 앱스스크립트 웹 앱 URL) ===== */
-const VER='2026-11-27c';
+const VER='2026-11-27d';
 const API='https://script.google.com/macros/s/AKfycbybco1Ml3YYJgA6rBGapPov9RtL4Cqsx1Lroovrv_SMy7gqdsVhpdBuZGOvIdoDBoVCJA/exec';
 /* ========================================================== */
 const cv=document.getElementById('c');let ctx=cv.getContext('2d');
@@ -443,8 +443,7 @@ function hero(cx,y0,tilt,shoeS,air,vel){
  part(()=>{ctx.beginPath();ctx.roundRect(-5.5,-198,11,14,3)},sk,()=>{ctx.fillStyle=skS;ctx.fillRect(-6,-198,12,7);ctx.fillRect(1.5,-198,5,14)},1.2);
  ctx.strokeStyle=OL;ctx.lineWidth=1.4;ctx.fillStyle='#e9e9e6';ctx.beginPath();ctx.ellipse(0,-186,9,3.4,0,0,Math.PI);ctx.fill();ctx.stroke();
  });
- sprite('H'+[eff,L,blink?1:0,trip>0?1:0,open?1:0,swq,champ?1:0,faceImg?PV:0].join(','),-48,-266,96,86,()=>{
- if(faceImg){photoHead(L);if(champ)headband();return}
+ sprite('H'+[eff,L,blink?1:0,trip>0?1:0,open?1:0,swq,champ?1:0].join(','),-48,-266,96,86,()=>{
  // back hair
  const hg=ctx.createLinearGradient(0,-250,0,-195);hg.addColorStop(0,'#2b3248');hg.addColorStop(.5,'#12131a');hg.addColorStop(1,'#07070b');
  ctx.fillStyle='#0b0b10';ctx.beginPath();ctx.ellipse(0,-213,17.5,17,0,0,7);ctx.fill();
@@ -506,14 +505,6 @@ function hero(cx,y0,tilt,shoeS,air,vel){
  ctx.restore();
 }
 const SPR=new Map();
-function photoHead(L){
- const r=19.5,cy=-210;
- ctx.save();ctx.beginPath();ctx.arc(0,cy,r,0,7);ctx.clip();ctx.drawImage(faceImg,-r,cy-r,2*r,2*r);
- const rd=[0,.08,.15,.22,.3][L]||0;if(rd){ctx.fillStyle='rgba(232,60,50,'+rd+')';ctx.fillRect(-r,cy-r,2*r,2*r)}
- ctx.restore();
- ctx.strokeStyle='#fff';ctx.lineWidth=2.2;ctx.beginPath();ctx.arc(0,cy,r+1.2,0,7);ctx.stroke();
- ctx.strokeStyle=OL;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,cy,r+2.5,0,7);ctx.stroke();
-}
 function sprite(key,x,y,w,h,fn){
  if(QL===0){fn();return}
  let c=SPR.get(key);
