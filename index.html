@@ -67,7 +67,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.proto
 var m=document.getElementById('msg');if(m)m.style.display='none';
 {
 /* ===== 전체 순위표 주소 (구글 앱스스크립트 웹 앱 URL) ===== */
-const VER='2026-11-28a';
+const VER='2026-11-28b';
 const API='https://script.google.com/macros/s/AKfycbybco1Ml3YYJgA6rBGapPov9RtL4Cqsx1Lroovrv_SMy7gqdsVhpdBuZGOvIdoDBoVCJA/exec';
 /* ========================================================== */
 const cv=document.getElementById('c');let ctx=cv.getContext('2d');
@@ -250,7 +250,7 @@ function buildCrowd(){
 }
 
 /* ---------- state ---------- */
-const NEED=20,LIVES=2;
+const NEEDS=[12,14,16,18,20],LIVES=2;let NEED=20;
 const CYC=[1.0,.85,.72,.60],HF=.186;
 let st='title',stage=0,th=Math.PI,P=.7,C=.7,wt=.1,lvl=0,SH=SHOES[0];
 let gt=0,firstReq=0,nextReq=0,lastTap=-9,jumpT=-1,jumpDur=.4,succ=0,lives=LIVES,score=0,newBest=false;
@@ -282,7 +282,7 @@ function height(){if(jumpT<0)return 0;const x=Math.min(1,jumpT/jumpDur);return 4
 let armed=false,practice=false,combo=0,runSaved=false,champNew=false;
 if(!Array.isArray(save.board))save.board=[];
 const SPD=[1.2,1.06,.93,.82,Math.pow(.92,4)],WM=[1.4,1.3,1.2,1.1,1];
-function setStage(i){stage=i;C=CYC[i]*SPD[lvl];P=C/(i+1);wt=HF*WM[lvl]*C/2;succ=0;st='ready';cd=.8;th=0;jumpT=-1}
+function setStage(i){NEED=NEEDS[lvl]||20;stage=i;C=CYC[i]*SPD[lvl];P=C/(i+1);wt=HF*WM[lvl]*C/2;succ=0;st='ready';cd=.8;th=0;jumpT=-1}
 function prep(){lvl=shoeIdx();SH=SHOES[lvl];lives=LIVES;score=0;combo=0;newBest=false;pops=[];parts=[];trip=0}
 function startRun(){prep();practice=false;runSaved=false;setStage(0)}
 let pLast=-1,pNew=false;
@@ -940,7 +940,7 @@ function titleScreen(s){
  closetIcon();
  if(save.champ)txt('★ 챔피언 ★',W/2,ty+76,15,'#ffd23f','#13315c');
  const py=ty+84;panel(14,py,W-28,172);
- txt('1단 → 2단 → 3단 → 4단, 각 20번',W/2,py+24,16,'#13315c');
+ txt('1단 → 2단 → 3단 → 4단, 각 '+(NEEDS[shoeIdx()]||20)+'번',W/2,py+24,16,'#13315c');
  txt('기회 2번 · 4단까지 깨면 새 신발',W/2,py+46,14,'#5a6b80');
  btn(30,py+64,196,62,'도전 시작',startRun,true,'신발: '+s.n);
  btn(236,py+64,94,62,'연습',()=>{st='psel'},true,'하트 없음','#2c9a62');
