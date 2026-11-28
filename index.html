@@ -67,7 +67,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.proto
 var m=document.getElementById('msg');if(m)m.style.display='none';
 {
 /* ===== 전체 순위표 주소 (구글 앱스스크립트 웹 앱 URL) ===== */
-const VER='2026-11-27f';
+const VER='2026-11-28a';
 const API='https://script.google.com/macros/s/AKfycbybco1Ml3YYJgA6rBGapPov9RtL4Cqsx1Lroovrv_SMy7gqdsVhpdBuZGOvIdoDBoVCJA/exec';
 /* ========================================================== */
 const cv=document.getElementById('c');let ctx=cv.getContext('2d');
@@ -281,7 +281,8 @@ function height(){if(jumpT<0)return 0;const x=Math.min(1,jumpT/jumpDur);return 4
 
 let armed=false,practice=false,combo=0,runSaved=false,champNew=false;
 if(!Array.isArray(save.board))save.board=[];
-function setStage(i){stage=i;C=CYC[i]*Math.pow(.92,lvl);P=C/(i+1);wt=HF*C/2;succ=0;st='ready';cd=.8;th=0;jumpT=-1}
+const SPD=[1.2,1.06,.93,.82,Math.pow(.92,4)],WM=[1.4,1.3,1.2,1.1,1];
+function setStage(i){stage=i;C=CYC[i]*SPD[lvl];P=C/(i+1);wt=HF*WM[lvl]*C/2;succ=0;st='ready';cd=.8;th=0;jumpT=-1}
 function prep(){lvl=shoeIdx();SH=SHOES[lvl];lives=LIVES;score=0;combo=0;newBest=false;pops=[];parts=[];trip=0}
 function startRun(){prep();practice=false;runSaved=false;setStage(0)}
 let pLast=-1,pNew=false;
@@ -736,7 +737,7 @@ function gauge(){
  ctx.fillStyle='rgba(8,24,50,.45)';rr(x-8,top-8,w+16,bh+16,12);
  const g=ctx.createLinearGradient(x,0,x+w,0);g.addColorStop(0,'#ffe56a');g.addColorStop(.5,'#ffd21f');g.addColorStop(1,'#e8ae00');
  ctx.fillStyle=g;rr(x,top,w,bh,8);
- const ly=FY,tr=ly-top,pos=gaugePos(),hh=HF*tr,cy=ly-pos*tr;
+ const ly=FY,tr=ly-top,pos=gaugePos(),hh=HF*WM[lvl]*tr,cy=ly-pos*tr;
  const inside=st==='play'&&Math.abs(gt-nextReq)<=wt;
  ctx.save();ctx.beginPath();ctx.roundRect(x,top,w,bh,8);ctx.clip();
  const rg=ctx.createLinearGradient(0,cy-hh,0,cy+hh);rg.addColorStop(0,'#ff6b5e');rg.addColorStop(.5,'#e8231b');rg.addColorStop(1,'#ff6b5e');
